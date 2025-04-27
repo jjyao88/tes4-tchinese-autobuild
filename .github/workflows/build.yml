@@ -64,10 +64,26 @@ jobs:
           wine ./UnrealPak.exe "JY_TraditionalChinese_P.pak" -create=./filelist.txt -compress
           mv JY_TraditionalChinese_P.pak ..
 
+      - name: Add timestamp to filename
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d")
+          mv JY_TraditionalChinese_P.pak JY_TraditionalChinese_${TIMESTAMP}_P.pak
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: tchinese-translation-pak
-          path: ./JY_TraditionalChinese_P.pak
+          path: ./JY_TraditionalChinese_*_P.pak
           compression-level: 1
           retention-days: 3
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Translation PAK ${{ env.TIMESTAMP }}
+          tag_name: release-${{ env.TIMESTAMP }}
+          files: ./JY_TraditionalChinese_*_P.pak
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
