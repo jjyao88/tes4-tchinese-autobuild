@@ -25,7 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
       - name: Install Wine
         run: |
           sudo dpkg --add-architecture i386
@@ -35,7 +34,11 @@ jobs:
           sudo apt update
           sudo apt install --install-recommends winehq-stable
 
-      # Runs a set of commands using the runners shell
       - name: Show wine version
         run: |
           wine --version
+
+      - name: Install Wine Mono 10.0.0 Runtime
+        run: |
+          wget https://github.com/wine-mono/wine-mono/releases/download/wine-mono-10.0.0/wine-mono-10.0.0-x86.msi
+          chmod +x wine-mono-10.0.0-x86.msi && wine msiexec /i wine-mono-10.0.0-x86.msi
