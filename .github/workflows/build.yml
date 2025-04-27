@@ -32,7 +32,8 @@ jobs:
           sudo mkdir -pm755 /etc/apt/keyrings
           wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
           sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-          sudo apt update && apt install --install-recommends winehq-stable
+          sudo apt update
+          sudo apt install --install-recommends winehq-stable
 
       # Runs a set of commands using the runners shell
       - name: Show wine version
