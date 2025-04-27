@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Build *.pak every day
 
 # Controls when the workflow will run
 on:
@@ -9,6 +9,9 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+  schedule:
+    - cron: '0 0 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -42,3 +45,29 @@ jobs:
         run: |
           wget https://github.com/wine-mono/wine-mono/releases/download/wine-mono-10.0.0/wine-mono-10.0.0-x86.msi
           chmod +x wine-mono-10.0.0-x86.msi && wine msiexec /i wine-mono-10.0.0-x86.msi
+
+      - name: Pull latest translation
+        env:
+          PARATRANZ_TOKEN: ${{ secrets.PARATRANZ_TOKEN }}
+          PROJECT_ID: ${{ vars.PROJECT_ID }}
+        run: |
+          curl -L -X GET "https://paratranz.cn/api/projects/${PROJECT_ID}/artifacts/download" -H "Authorization: ${PARATRANZ_TOKEN}" --output artifact.zip
+          unzip artifact.zip -d artifact
+
+      - name: Merge existing translation into Game.locres
+        run: wine ./bin/UnrealLocres.exe import ./assets/OriginalGame.locres ./artifact/utf8/MainGame.csv -o ./assets/JY_TraditionalChinese_P/OblivionRemastered/Content/Localization/Game/ja/Game.locres -f csv
+
+      - name: Build pak file
+        run: |
+          cd bin
+          echo "..\assets\JY_TraditionalChinese_P\*.*" "..\..\..\*.*" > filelist.txt
+          wine ./UnrealPak.exe "JY_TraditionalChinese_P.pak" -create=./filelist.txt -compress
+          mv JY_TraditionalChinese_P.pak ..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tchinese-translation-pak
+          path: ./JY_TraditionalChinese_P.pak
+          compression-level: 1
+          retention-days: 3
