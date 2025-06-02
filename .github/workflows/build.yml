@@ -81,8 +81,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Translation PAK ${{ env.TIMESTAMP }}
-          tag_name: release-${{ env.TIMESTAMP }}
+          name: nightly
+          tag_name: nightly
           files: ./JY_TraditionalChinese_*_P.pak
           generate_release_notes: false
         env:
